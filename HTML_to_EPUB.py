@@ -15,26 +15,6 @@ def get_soup(url: str) -> BeautifulSoup:
     resp.raise_for_status()
     return BeautifulSoup(resp.text, "lxml")
 
-def extract_links() -> list[tuple[str, str]]:
-    """Get chapter title + full URL from sidebar"""
-    soup = get_soup(START_URL)
-    # The handbook sidebar uses <a> in a nav or div with specific classes
-    sidebar = soup.select_one("nav[aria-label='Main']") or soup.select_one(".sidebar, aside")
-    print('found sidebar')
-    if not sidebar:
-        raise ValueError("Couldn't find sidebar")
-    
-    links = []
-    for a in sidebar.find_all("a", href=True):
-        href = a["href"]
-        if "/docs/handbook/" in href and not href.endswith("#"):  # skip anchors
-            full_url = urljoin(BASE_URL, href)
-            title = a.get_text(strip=True)
-            if title:
-                links.append((title, full_url))
-    print("Extracted Links: ", links)
-    return links
-
 def clean_content(soup: BeautifulSoup) -> str:
     """Extract main content and clean junk"""
     main = soup.select_one("main") or soup.body
@@ -48,12 +28,7 @@ def clean_content(soup: BeautifulSoup) -> str:
     ]:
         for el in main.select(sel):
             el.decompose()
-    
-    # Optional: fix relative images/links
-    for img in main.find_all("img"):
-        if img.get("src"):
-            img["src"] = urljoin(BASE_URL, img["src"])
-    
+       
     return str(main)
 
 def main():

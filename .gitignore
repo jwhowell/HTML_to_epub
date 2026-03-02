@@ -1,2 +1,6 @@
 /.venv
 /.conda
+/.vscode
+/*.epub
+/*.html
+/*.xml
